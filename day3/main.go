@@ -114,8 +114,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r-1 && n.Col == c {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -123,8 +125,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r+1 && n.Col == c {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -132,8 +136,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r && n.Col == c-1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -141,8 +147,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r && n.Col == c+1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -150,8 +158,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r-1 && n.Col == c-1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -159,8 +169,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r-1 && n.Col == c+1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -168,8 +180,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r+1 && n.Col == c-1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 
@@ -177,8 +191,10 @@ func (e *Engine) lookForGearRatio(r, c int) (int, bool) {
 			if n.Row == r+1 && n.Col == c+1 {
 				if number1 == 0 {
 					number1 = f.GetFullNumber()
+					break
 				} else {
 					number2 = f.GetFullNumber()
+					break
 				}
 			}
 		}
