@@ -30,6 +30,7 @@ func main() {
 	s := NewStack(inputs)
 
 	log.Printf("Part 1: %d", s.Points())
+	log.Printf("Part 2: %d", s.Points2())
 
 }
 
@@ -59,6 +60,11 @@ func parseCard(line string) Card {
 
 	card.Name = name
 
+	indexName := strings.ReplaceAll(strings.ReplaceAll(name, "  ", " "), "  ", " ")
+	indexVal := strings.Split(indexName, " ")[1]
+	card.Index, _ = strconv.Atoi(indexVal)
+	card.Index--
+
 	secondSplit := strings.Split(firstSplit[1], "|")
 	winningNumberSplit := strings.Split(secondSplit[0], " ")
 	playedNumberSplit := strings.Split(secondSplit[1], " ")
@@ -87,7 +93,8 @@ func parseCard(line string) Card {
 }
 
 type Stack struct {
-	Cards []Card
+	Cards  []Card
+	Cards2 []Card
 }
 
 func (s *Stack) Points() int {
@@ -98,10 +105,41 @@ func (s *Stack) Points() int {
 	return totalPoints
 }
 
+func (s *Stack) Points2() int {
+	s.Cards2 = append(s.Cards2, s.Cards...)
+	for i, c := range s.Cards {
+		if c.Points() == 0 {
+			continue
+		}
+
+		match := c.Matches()
+		if match > len(s.Cards2)-1 {
+			match = len(s.Cards2) - 1
+		}
+		c.PointsWithSubCards(s.Cards2[i+1:i+1+match], s)
+	}
+	return len(s.Cards2)
+}
+
 type Card struct {
 	Name     string
+	Index    int
 	Winnings []int
 	Played   []int
+}
+
+func (c *Card) PointsWithSubCards(cards []Card, s *Stack) {
+	for _, c := range cards {
+		if c.Points() == 0 {
+			continue
+		}
+		match := c.Matches()
+		if match > len(s.Cards[c.Index+1:])-1 {
+			match = len(s.Cards[c.Index+1:]) - 1
+		}
+		c.PointsWithSubCards(s.Cards[c.Index+1:c.Index+1+match], s)
+	}
+	s.Cards2 = append(s.Cards2, cards...)
 }
 
 func (c *Card) Points() int {
@@ -115,6 +153,17 @@ func (c *Card) Points() int {
 					match = match * 2
 				}
 
+			}
+		}
+	}
+	return match
+}
+func (c *Card) Matches() int {
+	match := 0
+	for _, p := range c.Played {
+		for _, w := range c.Winnings {
+			if p == w {
+				match++
 			}
 		}
 	}

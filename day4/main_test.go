@@ -19,4 +19,7 @@ func TestPart1(t *testing.T) {
 	res := s.Points()
 
 	assert.Equal(t, 13, res)
+
+	res2 := s.Points2()
+	assert.Equal(t, 30, res2)
 }
