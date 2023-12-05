@@ -45,7 +45,11 @@ func TestPart1(t *testing.T) {
 
 	g := NewGarden(inputs)
 
-	res := g.LowestLocationNumber()
+	res := g.LowestLocationNumber(false)
 
 	assert.Equal(t, 35, res)
+
+	res2 := g.LowestLocationNumber(true)
+
+	assert.Equal(t, 46, res2)
 }

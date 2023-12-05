@@ -29,18 +29,20 @@ func main() {
 
 	g := NewGarden(inputs)
 
-	log.Printf("Part 1: %d", g.LowestLocationNumber())
+	log.Printf("Part 1: %d", g.LowestLocationNumber(false))
+	log.Printf("Part 2: %d", g.LowestLocationNumber(true))
 }
 
 type Garden struct {
 	Seeds                 []int
-	SeedsToSoil           []map[int]int
-	SoilToFertilizer      []map[int]int
-	FertilizerToWater     []map[int]int
-	WaterToLight          []map[int]int
-	LightToTemperature    []map[int]int
-	TemperatureToHumidity []map[int]int
-	HumidityToLocation    []map[int]int
+	Seeds2                []int
+	SeedsToSoil           []Lookup
+	SoilToFertilizer      []Lookup
+	FertilizerToWater     []Lookup
+	WaterToLight          []Lookup
+	LightToTemperature    []Lookup
+	TemperatureToHumidity []Lookup
+	HumidityToLocation    []Lookup
 }
 
 func NewGarden(input []string) *Garden {
@@ -56,6 +58,7 @@ func parseGarden(input []string) *Garden {
 	for _, line := range input {
 		if strings.Contains(line, "seeds:") {
 			g.Seeds = parseSeeds(line)
+			g.Seeds2 = parseSeeds2(line)
 			continue
 		}
 
@@ -108,20 +111,44 @@ func parseGarden(input []string) *Garden {
 	return g
 }
 
-func generateMap(line string) map[int]int {
-	smap := map[int]int{}
+type Lookup struct {
+	Min  int
+	Max  int
+	Diff int
+}
 
+func generateMap(line string) Lookup {
 	sline := strings.Split(line, " ")
 
-	iteration, _ := strconv.Atoi(sline[2])
+	iteration, err := strconv.Atoi(sline[2])
+	if err != nil {
+		log.Fatal(err)
+	}
 	destination, _ := strconv.Atoi(sline[0])
+	if err != nil {
+		log.Fatal(err)
+	}
 	source, _ := strconv.Atoi(sline[1])
-
-	for i := 0; i < iteration; i++ {
-		smap[source+i] = destination + i
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return smap
+	diff := destination - source
+
+	l := Lookup{
+		Min:  source,
+		Max:  source + iteration - 1,
+		Diff: diff,
+	}
+
+	return l
+}
+
+func diffa(a, b int) int {
+	if a < b {
+		return b - a
+	}
+	return a - b
 }
 
 func parseSeeds(line string) []int {
@@ -139,72 +166,108 @@ func parseSeeds(line string) []int {
 	return seeds
 }
 
-func (g *Garden) LowestLocationNumber() int {
-	locations := []int{}
-	for _, s := range g.Seeds {
+func parseSeeds2(line string) []int {
+	seeds := []int{}
+
+	sSplit := strings.Split(line, " ")
+
+	for i := 0; i < len(sSplit); {
+		if sSplit[i] == "seeds:" {
+			i++
+			continue
+		}
+
+		iVal, err := strconv.Atoi(sSplit[i+1])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		start, err := strconv.Atoi(sSplit[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for y := start; y < start+iVal; y++ {
+			seeds = append(seeds, y)
+		}
+		i += 2
+
+	}
+
+	return seeds
+}
+
+func (g *Garden) GetSeeds(part2 bool) []int {
+	if part2 {
+		return g.Seeds2
+	}
+	return g.Seeds
+}
+
+func (g *Garden) LowestLocationNumber(part2 bool) int {
+	lowest := 0
+
+	for i, s := range g.GetSeeds(part2) {
 		// seed to soil
 		soil := s
 		for _, soilmap := range g.SeedsToSoil {
-			if _, ok := soilmap[s]; ok {
-				soil = soilmap[s]
+			if s >= soilmap.Min && s <= soilmap.Max {
+				soil = s + soilmap.Diff
 			}
 		}
 
 		// soil to fertilizer
 		fertil := soil
 		for _, fertilmap := range g.SoilToFertilizer {
-			if _, ok := fertilmap[soil]; ok {
-				fertil = fertilmap[soil]
+			if soil >= fertilmap.Min && soil <= fertilmap.Max {
+				fertil = soil + fertilmap.Diff
 			}
 		}
 
 		// fertilizer to water
 		water := fertil
 		for _, watermap := range g.FertilizerToWater {
-			if _, ok := watermap[fertil]; ok {
-				water = watermap[fertil]
+			if fertil >= watermap.Min && fertil <= watermap.Max {
+				water = fertil + watermap.Diff
 			}
 		}
 
 		// water to light
 		light := water
 		for _, lightmap := range g.WaterToLight {
-			if _, ok := lightmap[water]; ok {
-				light = lightmap[water]
+			if water >= lightmap.Min && water <= lightmap.Max {
+				light = water + lightmap.Diff
 			}
 		}
 
 		// light to temperature
 		temp := light
 		for _, tempmap := range g.LightToTemperature {
-			if _, ok := tempmap[light]; ok {
-				temp = tempmap[light]
+			if light >= tempmap.Min && light <= tempmap.Max {
+				temp = light + tempmap.Diff
 			}
 		}
 
 		// temperature to humidity
 		humid := temp
 		for _, humidmap := range g.TemperatureToHumidity {
-			if _, ok := humidmap[temp]; ok {
-				humid = humidmap[temp]
+			if temp >= humidmap.Min && temp <= humidmap.Max {
+				humid = temp + humidmap.Diff
 			}
 		}
 
 		// humidity to location
 		loc := humid
 		for _, locmap := range g.HumidityToLocation {
-			if _, ok := locmap[humid]; ok {
-				loc = locmap[humid]
+			if humid >= locmap.Min && humid <= locmap.Max {
+				loc = humid + locmap.Diff
 			}
 		}
-		locations = append(locations, loc)
-	}
-
-	lowest := 0
-
-	for _, l := range locations {
-		if l < lowest || lowest == 0 {
-			lowest = l
+		if loc < lowest || lowest == 0 {
+			lowest = loc
+		}
+		if i%10000000 == 0 {
+			log.Printf("processed: %d", i)
 		}
 	}
 
